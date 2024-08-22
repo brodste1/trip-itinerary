@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trip Itinerary</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.min.css" rel="stylesheet">
+    <style>
+        body {
+           /* background-image: url('https://images.unsplash.com/photo-1503899036084-c55cdd92da26?q=80&w=987&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D'); /* Path to your local image */
+            background-color: rgba(94, 113, 121, 0.603); 
+            background-size: cover;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+            background-position: center;
+            color: #ffffff; /* This sets the color of the text */
+        }
+        .top-section {
+            background-color: rgba(76, 97, 104, 0.7); /* Semi-transparent black background */
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+        h1 {
+            color: #ffffff; /* Set your preferred color for the title here */
+        }
+        .container {
+            max-width: 900px;
+        }
+        .card {
+            border: none;
+            border-radius: 25px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            background-color: rgba(255, 255, 255, 0.9);
+        }
+        .card-body {
+            padding: 2rem;
+        }
+        .btn-secondary, .btn-primary, .btn-danger {
+            border-radius: 20px;
+        }
+        .dropdown-menu {
+            min-width: 200px;
+        }
+        .modal-content {
+            border-radius: 20px;
+        }
+        .modal-header, .modal-footer {
+            border: none;
+        }
+        .modal-title {
+            font-weight: 600;
+        }
+        .dropdown-item {
+            cursor: pointer;
+            color: #495057;
+        }
+        .dropdown-item:hover {
+            background-color: #e9ecef;
+        }
+        .btn-primary {
+            background-color: #007bff;
+            border-color: #007bff;
+        }
+        .btn-primary:hover {
+            background-color: #0056b3;
+            border-color: #004085;
+        }
+        .btn-danger {
+            background-color: #dc3545;
+            border-color: #dc3545;
+        }
+        .btn-danger:hover {
+            background-color: #c82333;
+            border-color: #bd2130;
+        }
+        .btn-secondary {
+            background-color: #6c757d;
+            border-color: #6c757d;
+        }
+        .btn-secondary:hover {
+            background-color: #5a6268;
+            border-color: #545b62;
+        }
+        .icon-button {
+            background: transparent;
+            border: none;
+            cursor: pointer;
+        }
+        .icon-button:hover {
+            background-color: #e9ecef;
+        }
+    </style>
+</head>
+<body>
+    <div class="container mt-5">
+        <div class="top-section d-flex justify-content-between align-items-center">
+            <h1>Trip Itinerary</h1>
+            <!-- Gear Icon Dropdown -->
+            <div class="dropdown">
+                <button class="btn btn-secondary dropdown-toggle" type="button" id="settingsDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                    <i class="bi bi-gear-fill"></i>
+                </button>
+                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="settingsDropdown">
+                    <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#addDayModal">Add Day</a></li>
+                </ul>
+            </div>
+        </div>
+
+        {{#each itinerary}}
+        <div class="card mb-3">
+            <div class="card-body">
+                <h5 class="card-title">Day {{this.day}}: {{this.location}}</h5>
+                <ul class="list-group mb-3">
+                    {{#each this.activities}}
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        {{this}}
+                        <div class="btn-group">
+                            <button class="btn btn-secondary btn-sm dropdown-toggle" type="button" id="dropdownMenuButton{{../day}}-{{@index}}" data-bs-toggle="dropdown" aria-expanded="false">
+                                Actions
+                            </button>
+                            <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton{{../day}}-{{@index}}">
+                                <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#editActivityModal{{../day}}" data-index="{{@index}}" data-activity="{{this}}">Edit Activity</a></li>
+                                <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#deleteActivityModal{{../day}}" data-index="{{@index}}">Delete Activity</a></li>
+                            </ul>
+                        </div>
+                    </li>
+                    {{/each}}
+                </ul>
+                <div class="dropdown">
+                    <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton{{this.day}}" data-bs-toggle="dropdown" aria-expanded="false">
+                        Actions
+                    </button>
+                    <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton{{this.day}}">
+                        <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#addActivityModal{{this.day}}">Add Activity</a></li>
+                        <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#deleteDayModal{{this.day}}">Delete Day</a></li>
+                    </ul>
+                </div>
+                <!-- Add Activity Modal -->
+                <div class="modal fade" id="addActivityModal{{this.day}}" tabindex="-1" aria-labelledby="addActivityModalLabel{{this.day}}" aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="addActivityModalLabel{{this.day}}">Add Activity to Day {{this.day}}</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <form action="/trip/add-activity" method="post">
+                                <div class="modal-body">
+                                    <input type="hidden" name="day" value="{{this.day}}">
+                                    <div class="mb-3">
+                                        <label for="activity" class="form-label">Activity</label>
+                                        <input type="text" class="form-control" id="activity" name="activity" required>
+                                    </div>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                    <button type="submit" class="btn btn-primary">Add Activity</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                <!-- Edit Activity Modal -->
+                <div class="modal fade" id="editActivityModal{{this.day}}" tabindex="-1" aria-labelledby="editActivityModalLabel{{this.day}}" aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="editActivityModalLabel{{this.day}}">Edit Activity for Day {{this.day}}</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <form action="/trip/edit-activity" method="post">
+                                <div class="modal-body">
+                                    <input type="hidden" name="day" value="{{this.day}}">
+                                    <input type="hidden" name="activityIndex" id="editActivityIndex{{this.day}}">
+                                    <div class="mb-3">
+                                        <label for="activitySelect{{this.day}}" class="form-label">Select Activity to Edit</label>
+                                        <select class="form-select" id="activitySelect{{this.day}}" name="activityIndex" required>
+                                            {{#each this.activities}}
+                                            <option value="{{@index}}">{{this}}</option>
+                                            {{/each}}
+                                        </select>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="newActivity{{this.day}}" class="form-label">New Activity</label>
+                                        <input type="text" class="form-control" id="newActivity{{this.day}}" name="newActivity" required>
+                                    </div>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                    <button type="submit" class="btn btn-primary">Save Changes</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                <!-- Delete Activity Modal -->
+                <div class="modal fade" id="deleteActivityModal{{this.day}}" tabindex="-1" aria-labelledby="deleteActivityModalLabel{{this.day}}" aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="deleteActivityModalLabel{{this.day}}">Delete Activity from Day {{this.day}}</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <form action="/trip/delete-activity" method="post">
+                                <div class="modal-body">
+                                    <input type="hidden" name="day" value="{{this.day}}">
+                                    <div class="mb-3">
+                                        <label for="activitySelect{{this.day}}" class="form-label">Select Activity to Delete</label>
+                                        <select class="form-select" id="activitySelect{{this.day}}" name="activityIndexToDelete" required>
+                                            {{#each this.activities}}
+                                            <option value="{{@index}}">{{this}}</option>
+                                            {{/each}}
+                                        </select>
+                                    </div>
+                                    <p>Are you sure you want to delete this activity?</p>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                    <button type="submit" class="btn btn-danger">Delete Activity</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                <!-- Delete Day Modal -->
+                <div class="modal fade" id="deleteDayModal{{this.day}}" tabindex="-1" aria-labelledby="deleteDayModalLabel{{this.day}}" aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="deleteDayModalLabel{{this.day}}">Delete Day {{this.day}}</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <form action="/trip/delete-day" method="post">
+                                <div class="modal-body">
+                                    <input type="hidden" name="day" value="{{this.day}}">
+                                    <p>Are you sure you want to delete Day {{this.day}}? This action cannot be undone.</p>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                    <button type="submit" class="btn btn-danger">Delete Day</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {{/each}}
+
+        <!-- Add Day Modal -->
+        <div class="modal fade" id="addDayModal" tabindex="-1" aria-labelledby="addDayModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="addDayModalLabel">Add a New Day</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <form action="/trip/add-day" method="post">
+                        <div class="modal-body">
+                            <div class="mb-3">
+                                <label for="newDay" class="form-label">Day Number</label>
+                                <input type="number" class="form-control" id="newDay" name="day" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="newLocation" class="form-label">Location</label>
+                                <input type="text" class="form-control" id="newLocation" name="location" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="newActivities" class="form-label">Activities (comma-separated)</label>
+                                <input type="text" class="form-control" id="newActivities" name="activities" required>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                            <button type="submit" class="btn btn-success">Add Day</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.min.js"></script>
+</body>
+</html>
