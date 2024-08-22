@@ -18,7 +18,10 @@ export class TripController {
   editItinerary(@Body() body: any) {
     const { day, activities } = body;
     try {
-      this.tripService.updateActivities(parseInt(day, 10), activities.split(',').map(activity => activity.trim()));
+      this.tripService.updateActivities(
+        parseInt(day, 10),
+        activities.split(',').map((activity) => activity.trim()),
+      );
     } catch (error) {
       console.error(`Error editing itinerary: ${error.message}`);
     }
